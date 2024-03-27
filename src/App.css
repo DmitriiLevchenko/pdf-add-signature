@@ -1,0 +1,64 @@
+/* Style for the dropzone area */
+.dropzone {
+  border: 2px dashed #007bff;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  border-radius: 5px; /* Optional: for better visuals */
+}
+
+/* Style for the signature canvas */
+.signatureCanvas {
+  border: 1px solid #000;
+  margin-top: 20px;
+  background-color: #fff; /* Ensure the signature pad has a solid background */
+}
+
+/* Button styling */
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px; /* Optional: for better visuals */
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker shade for hover effect */
+}
+
+/* Container for the iframe */
+.pdf-preview-container {
+  width: 100%;
+  height: 500px; /* Adjust based on your needs */
+  position: relative; /* Needed for correct positioning of any overlays or indicators */
+  border: 1px solid #ccc; /* Optional: visual structure */
+  margin-top: 20px;
+  background-color: #f9f9f9; /* Light background in case PDF is transparent */
+}
+
+/* The iframe displaying the PDF */
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none; /* Remove border for a cleaner look */
+}
+
+/* Optional: Visual cues for signature mode */
+.signature-mode-active {
+  border: 2px solid red; /* Visual indication of signature mode */
+}
+
+.signature-mode-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: red;
+  color: white;
+  padding: 5px;
+  border-bottom-left-radius: 5px; /* Rounded corner for the indicator */
+}
