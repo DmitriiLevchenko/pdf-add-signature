@@ -11,8 +11,8 @@ function App() {
     useState('')
   const sigPadRef = useRef({})
   const [downloadUrl, setDownloadUrl] = useState('')
-  const [isSignatureMode, setIsSignatureMode] =
-    useState(false)
+  const [signatureX, setSignatureX] = useState(0) // X coordinate for the signature
+  const [signatureY, setSignatureY] = useState(0) // Y coordinate for the signature
 
   const onDrop = async acceptedFiles => {
     const file = acceptedFiles[0]
@@ -23,7 +23,9 @@ function App() {
   const {getRootProps, getInputProps} = useDropzone({
     onDrop,
   })
+
   const clearSignature = () => sigPadRef.current.clear()
+
   const saveSignature = () => {
     setSignatureDataUrl(
       sigPadRef.current
@@ -32,7 +34,7 @@ function App() {
     )
   }
 
-  const addSignatureToPdf = async (x, y) => {
+  const addSignatureToPdf = async () => {
     if (!pdfFile || !signatureDataUrl) return
 
     const pdfBytes = await pdfFile.arrayBuffer()
@@ -43,14 +45,10 @@ function App() {
       signatureDataUrl,
     )
 
-    // Adjust for a visible placement if needed, might need to scale `x` and `y`
-    const scaledX = x // Example, adjust based on actual scaling
-    const scaledY = y // Adjust based on actual scaling
-    console.log('Placing signature at:', scaledY, scaledX)
-
+    // Use the X and Y state variables to position the signature
     page.drawImage(signatureImage, {
-      x: 350,
-      y: 50,
+      x: signatureX,
+      y: signatureY,
       width: 50,
       height: 50,
     })
@@ -60,20 +58,8 @@ function App() {
       new Blob([pdfBytesOut], {type: 'application/pdf'}),
     )
 
-    console.log('New PDF URL:', newPdfUrl) // Verify the URL is as expected
     setDownloadUrl(newPdfUrl)
     setPdfPreviewUrl(newPdfUrl) // Update to ensure the iframe reloads with the new PDF
-    setIsSignatureMode(false)
-  }
-
-  const handlePdfContainerClick = e => {
-    if (!isSignatureMode) return
-
-    const container = e.currentTarget
-    const {x, y} = container.getBoundingClientRect()
-    const clickX = e.clientX - x
-    const clickY = e.clientY - y
-    addSignatureToPdf(clickX, clickY)
   }
 
   return (
@@ -85,47 +71,63 @@ function App() {
         <input {...getInputProps()} />
         <p>
           Drag 'n' drop a PDF file here, or click to select
+          files
         </p>
       </div>
-      <button
-        onClick={() => setIsSignatureMode(!isSignatureMode)}
-      >
-        {isSignatureMode
-          ? 'Exit Signature Mode'
-          : 'Enter Signature Mode'}
-      </button>
-      <div
-        onClick={handlePdfContainerClick}
-        style={{position: 'relative', height: '500px'}}
-      >
-        {pdfPreviewUrl && (
-          <iframe
-            key={pdfPreviewUrl} // Forces re-rendering when the URL changes
-            src={pdfPreviewUrl}
-            width='100%'
-            height='500px'
-            style={{
-              pointerEvents: isSignatureMode
-                ? 'none'
-                : 'auto',
-            }}
-          />
-        )}
-      </div>
+      {pdfPreviewUrl && (
+        <div
+          style={{position: 'relative', height: '500px'}}
+        >
+          {pdfPreviewUrl && (
+            <iframe
+              key={pdfPreviewUrl}
+              src={pdfPreviewUrl}
+              width='100%'
+              height='500px'
+              style={{
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+        </div>
+      )}
       {pdfFile && (
         <>
-          <SignaturePad
-            ref={sigPadRef}
-            canvasProps={{
-              className: 'signatureCanvas',
-              width: 250,
-              height: 150,
-            }}
-          />
-          <button onClick={clearSignature}>Clear</button>
-          <button onClick={saveSignature}>
-            Save Signature
-          </button>
+          <div className='signature-container'>
+            <SignaturePad
+              ref={sigPadRef}
+              canvasProps={{
+                className: 'signatureCanvas',
+                width: 250,
+                height: 150,
+              }}
+            />
+            <button onClick={clearSignature}>Clear</button>
+            <button onClick={saveSignature}>
+              Save Signature
+            </button>
+          </div>
+          <div className='coordinates-inputs'>
+            <input
+              type='number'
+              value={signatureX}
+              onChange={e =>
+                setSignatureX(Number(e.target.value))
+              }
+              placeholder='Signature X Coordinate'
+            />
+            <input
+              type='number'
+              value={signatureY}
+              onChange={e =>
+                setSignatureY(Number(e.target.value))
+              }
+              placeholder='Signature Y Coordinate'
+            />
+            <button onClick={() => addSignatureToPdf()}>
+              Add Signature to PDF
+            </button>
+          </div>
         </>
       )}
       {downloadUrl && (
